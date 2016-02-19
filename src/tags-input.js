@@ -256,10 +256,14 @@ tagsInput.directive('tagsInput', function($timeout, $document, $window, tagsInpu
             };
 
             scope.newTag = {
-                text: function(value) {
+                text: function(value, event) {
                     if (angular.isDefined(value)) {
                         scope.text = value;
-                        events.trigger('input-change', value);
+                        if (value === '' && event === 'tag-added') {
+                            $timeout(function() {input.blur();});
+                        } else {
+                            events.trigger('input-change', value);
+                        }
                     }
                     else {
                         return scope.text || '';
@@ -348,7 +352,7 @@ tagsInput.directive('tagsInput', function($timeout, $document, $window, tagsInpu
                 .on('tag-removed', scope.onTagRemoved)
                 .on('tag-clicked', scope.onTagClicked)
                 .on('tag-added', function() {
-                    scope.newTag.text('');
+                    scope.newTag.text('', 'tag-added');
                 })
                 .on('tag-added tag-removed', function() {
                     scope.tags = tagList.items;

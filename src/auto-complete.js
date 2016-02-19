@@ -173,8 +173,8 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
 
             options.tagsInput = tagsInput.getOptions();
 
-            shouldLoadSuggestions = function(value) {
-                return value && value.length >= options.minLength || !value && options.loadOnEmpty;
+            shouldLoadSuggestions = function(value, event) {
+                return value && value.length >= options.minLength || (!value && options.loadOnEmpty && !tagsInput.getTags().length) || (!value && options.loadOnEmpty && tagsInput.getTags().length && event === 'focus');
             };
 
             scope.addSuggestionByIndex = function(index) {
@@ -188,7 +188,6 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
                 if (suggestionList.selected) {
                     tagsInput.addTag(angular.copy(suggestionList.selected));
                     suggestionList.reset();
-                    tagsInput.focusInput();
 
                     added = true;
                 }
@@ -213,7 +212,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, $q, tags
                 })
                 .on('input-focus', function() {
                     var value = tagsInput.getCurrentTagText();
-                    if (options.loadOnFocus && shouldLoadSuggestions(value)) {
+                    if (options.loadOnFocus && shouldLoadSuggestions(value), 'focus') {
                         suggestionList.load(value, tagsInput.getTags());
                     }
                 })
